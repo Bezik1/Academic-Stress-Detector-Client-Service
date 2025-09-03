@@ -1,5 +1,39 @@
 .app {
   inset: 0;
   position: fixed;
-  background-color: #1F2022;
+  background-color: var(--color-background);
+}
+
+.special-text {
+  font-size: 5rem;
+  margin: 40px;
+}
+
+.special-card {
+  background-color: var(--color-section);
+}
+
+.accent-card {
+  background-color: var(--color-secondary);
+}
+
+.input-btn {
+  border: none;
+  font-size: 1.5rem;
+  background-color: var(--color-section);
+  padding: 20px;
+  border-radius: 1rem;
+  box-shadow: 3px 3px 3px var(--color-primary);
+}
+
+.login-btn {
+  width: 50%;
+  height: 70px;
+}
+
+.send-btn {
+  background-color: var(--color-primary);
+  color: var(--color-section);
+  font-size: 1.8rem;
+  border-radius: 2rem;
 }

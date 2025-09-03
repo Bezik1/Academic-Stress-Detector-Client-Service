@@ -1,2 +1,50 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700&display=swap');
 
+:root {
+  --color-background: #FFF7D7;
+  --color-section: #FFE6B3;
+  --color-primary: #5c391a;
+  --color-secondary: #CF965C;
+
+  --font-special: 'Caveat';
+  --font-regular: "Outfit";
+
+  font-family: var(--font-special);
+  color: var(--color-primary);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  all: unset;
+  display: inline-block;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
