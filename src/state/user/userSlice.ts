@@ -24,7 +24,10 @@ const userSlice = createSlice({
                 state.isLoading = false
             })
             .addCase(getUser.rejected, (state, action) => {
-                    state.error = action.error.message ?? "Failed to fetch user";
+                    state.error = {
+                        status: action.error.code ?? "400",
+                        message: action.error.message ?? "Failed to fetch user",
+                    };
                     state.isLoading = false;
                 });
         },
@@ -37,8 +40,8 @@ export const getUser = createAsyncThunk<User, { token: string }>(
             const res = await fetch(ME_URL, {
                 method: "GET",
                 headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
                 },
             });
 

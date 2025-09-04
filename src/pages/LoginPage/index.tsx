@@ -1,15 +1,14 @@
 import { useState } from "react"
 import "./index.css"
-import { useDispatch, useSelector } from "react-redux"
-import type { AppDispatch, RootState } from "../../state/store"
-import { LOGIN_URL } from "../../const/api"
-import { setToken } from "../../state/token/tokenSlice"
+import { useDispatch } from "react-redux"
+import type { AppDispatch } from "../../state/store"
+import { getToken } from "../../state/token/tokenSlice"
 import { useNavigate } from "react-router-dom"
+import { setError } from "../../state/error/errorSlice"
 
 const LoginPage = () => {
     const navigate = useNavigate()
 
-    const token = useSelector((state: RootState) => state.token.value)
     const dispatch = useDispatch<AppDispatch>()
 
     const [email, setEmail] = useState("")
@@ -19,26 +18,14 @@ const LoginPage = () => {
         e.preventDefault()
 
         try {
-            const res = await fetch(LOGIN_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            console.log(res)
-
-            if (res.status === 200) {
-                const generatedToken = await res.text()
-
-                dispatch(setToken(generatedToken))
-                navigate("/home")
-            } else {
-                console.error("Error:", res.status, res.statusText)
-            }
+            await dispatch(getToken({ email, password })).unwrap()
+            navigate("/home")
         } catch(err) {
-            console.error("Fetch error:", err); 
+            dispatch(setError({
+                status: "400",
+                message: err as string
+            }))
+            navigate("/error")
         }
     }
 

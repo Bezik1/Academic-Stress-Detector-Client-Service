@@ -6,18 +6,29 @@ import StarRating from "../StarRating"
 import type { AppDispatch, RootState } from "../../state/store"
 import { useEffect } from "react"
 import { getUserSessions } from "../../state/sessions/sessionsSlice"
+import { setError } from "../../state/error/errorSlice"
+import { useNavigate } from "react-router-dom"
 
 const Sessions = ({ setActiveSession } : { setActiveSession: (session: Session) => void }) =>{
     const dispatch = useDispatch<AppDispatch>()
-    const token = useSelector((state: RootState) => state.token.value)
+    const navigate = useNavigate()
+    
+    const token = useSelector((state: RootState) => state.token.token)
     const user = useSelector((state: RootState) => state.user.user)
-    const sessions = useSelector((state: RootState) => state.sessions.sessions)
+    const { sessions, error } = useSelector((state: RootState) => state.sessions)
+
+    useEffect(() =>{
+        if(error != null) {
+            dispatch(setError(error))
+            navigate('/error')
+        }
+    }, [error])
 
     useEffect(() =>{
         if(token && user) {
             dispatch(getUserSessions({ token, user }))
         }
-    }, [token, user, dispatch,])
+    }, [token, user?.id, dispatch,])
 
     return (
         <div className="flex gap-10 overflow-x-auto w-[60vw] h-[65vh] scrollbar-hide">

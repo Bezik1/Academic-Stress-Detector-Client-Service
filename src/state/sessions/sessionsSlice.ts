@@ -25,7 +25,10 @@ const sessionsSlice = createSlice({
                 state.isLoading = false
             })
             .addCase(getUserSessions.rejected, (state, action) =>{
-                state.error = action.error.message ?? "Failed to fetch user sessions"
+                state.error = {
+                    status: action.error.code ?? "400",
+                    message: action.error.message ?? "Failed to fetch user sessions",
+                }
                 state.isLoading = false
             })
     },

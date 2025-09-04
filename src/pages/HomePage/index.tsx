@@ -1,6 +1,4 @@
 import "./index.css"
-import { testSessions } from "../../const/test/sessions"
-import { testUser } from "../../const/test/user"
 import type { Session } from "../../types/Session"
 import { useEffect, useState } from "react"
 import { SESSION_KEYS, STRESS_LEVELS } from "../../const/session"
@@ -10,24 +8,69 @@ import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "../../state/store"
 import { getUser } from "../../state/user/userSlice"
 import Sessions from "../../components/Sessions"
+import CreateSessionModal from "../../components/CreateSessionModal"
+import { USER_SESSIONS_URL } from "../../const/api"
+import { getUserSessions } from "../../state/sessions/sessionsSlice"
+import { useNavigate } from "react-router-dom"
+import { setError } from "../../state/error/errorSlice"
 
 const HomePage = () => {
     const [activeSession, setActiveSession] = useState<Session>()
     const [activeCreateNewModal, setActiveCreateNewModal] = useState(false)
     const [newSessionData, setNewSessionData] = useState<Partial<Session>>({})
 
+    const navigate = useNavigate()
+
     const dispatch = useDispatch<AppDispatch>()
-    const token = useSelector((state: RootState) => state.token.value)
-    const user = useSelector((state: RootState) => state.user.user)
+    const { token, error: tokenError } = useSelector((state: RootState) => state.token)
+    const { user, error: userError } = useSelector((state: RootState) => state.user)
+
+    useEffect(() =>{
+        if(userError || tokenError) {
+            switch(true) {
+                case userError != null:
+                    dispatch(setError(userError))
+                    break
+                case tokenError != null:
+                    dispatch(setError(tokenError))
+                    break
+            }
+            navigate("/error")
+        }
+    }, [userError, tokenError])
 
     useEffect(() => {
         if (token) {
             dispatch(getUser({ token }))
         }
-    }, [token, user, dispatch])
+    }, [token, dispatch])
 
     const handleStarChange = (key: keyof Session, value: number) => {
         setNewSessionData((prev) => ({ ...prev, [key]: value }))
+    }
+
+    const createNewSession = async () =>{
+        try {
+            if(user == null || token == null) throw new Error()
+            const { id, stressLevel, ...newSession } = newSessionData
+
+            const res = await fetch(`${USER_SESSIONS_URL}/${user.id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(newSession)
+                }
+            )
+            console.log(res.json())
+
+            if(res.ok) {
+                dispatch(getUserSessions({ token, user }))
+            }
+        } catch(err) {
+
+        }
     }
 
     return (
@@ -102,41 +145,12 @@ const HomePage = () => {
             )}
 
             {activeCreateNewModal && (
-                <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="special-card rounded-2xl p-8 w-1/3 max-h-[80vh] overflow-y-auto shadow-xl">
-                        <h2 className="text-3xl font-bold mb-6">New Session</h2>
-
-                        <div className="grid grid-cols-2 gap-6">
-                            {SESSION_KEYS.map((key) => (
-                                <div key={key}>
-                                    <p className="text-sm font-medium mb-1">{priettifySessionKey(key)}</p>
-                                    <StarRating
-                                        value={newSessionData[key] ?? null}
-                                        onChange={(val) => handleStarChange(key, val)}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex justify-between gap-4 mt-6">
-                            <button
-                                className="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-                                onClick={() => setActiveCreateNewModal(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="px-6 py-2 bg-yellow-700 text-white rounded-lg hover:bg-yellow-800"
-                                onClick={() => {
-                                    console.log("Saving session", newSessionData)
-                                    setActiveCreateNewModal(false)
-                                }}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <CreateSessionModal
+                    handleStarChange={handleStarChange}
+                    newSessionData={newSessionData}
+                    setActiveCreateNewModal={setActiveCreateNewModal}
+                    createNewSession={createNewSession}
+                />
             )}
         </div>
     )
