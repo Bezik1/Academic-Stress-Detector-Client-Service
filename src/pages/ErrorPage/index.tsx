@@ -14,7 +14,7 @@ const ErrorPage = () => {
                 alt="Example Image"
             />
             <div>
-                <span className="text-4xl">Oh no you got on error</span>
+                <span className="text-4xl text-center">Oh no you got on error</span>
                 <div className="text-4xl text-center">
                     {error?.message}
                 </div>
