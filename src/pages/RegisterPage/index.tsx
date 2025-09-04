@@ -28,7 +28,7 @@ const RegisterPage = () => {
         </div>
         <img
             className="w-2/5"
-            src="assets/images/welcome_version.webp"
+            src="assets/images/awake_version.webp"
             alt="Example Image"
         />
     </div>

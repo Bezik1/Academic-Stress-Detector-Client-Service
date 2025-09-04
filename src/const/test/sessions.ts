@@ -1,4 +1,4 @@
-import type { Session } from "../../types/store/Session";
+import type { Session } from "../../types/Session";
 
 export const testSessions: Session[] = [
     {

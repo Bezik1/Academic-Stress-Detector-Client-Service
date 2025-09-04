@@ -1,4 +1,4 @@
-import type { User } from "../../types/store/User";
+import type { User } from "../../types/User";
 
 export const testUser: User = {
     id: 4,

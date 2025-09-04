@@ -1,16 +1,30 @@
 import "./index.css"
 import { testSessions } from "../../const/test/sessions"
 import { testUser } from "../../const/test/user"
-import type { Session } from "../../types/store/Session"
-import { useState } from "react"
+import type { Session } from "../../types/Session"
+import { useEffect, useState } from "react"
 import { SESSION_KEYS, STRESS_LEVELS } from "../../const/session"
 import { priettifySessionKey } from "../../utils/text"
 import StarRating from "../../components/StarRating"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "../../state/store"
+import { getUser } from "../../state/user/userSlice"
+import Sessions from "../../components/Sessions"
 
 const HomePage = () => {
     const [activeSession, setActiveSession] = useState<Session>()
     const [activeCreateNewModal, setActiveCreateNewModal] = useState(false)
     const [newSessionData, setNewSessionData] = useState<Partial<Session>>({})
+
+    const dispatch = useDispatch<AppDispatch>()
+    const token = useSelector((state: RootState) => state.token.value)
+    const user = useSelector((state: RootState) => state.user.user)
+
+    useEffect(() => {
+        if (token) {
+            dispatch(getUser({ token }))
+        }
+    }, [token, user, dispatch])
 
     const handleStarChange = (key: keyof Session, value: number) => {
         setNewSessionData((prev) => ({ ...prev, [key]: value }))
@@ -22,45 +36,12 @@ const HomePage = () => {
                 <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 text-lg font-bold border-2 border-yellow-700">
                     U
                 </div>
-                <span className="text-xl text-yellow-700 ml-5">{testUser.username}</span>
+                <span className="text-xl text-yellow-700 ml-5">{user?.username}</span>
             </nav>
 
             <div className="flex flex-col items-center justify-center">
                 <h1 className="text-7xl m-8">Sessions</h1>
-
-                <div className="flex gap-10 overflow-x-auto w-[60vw] h-[65vh] scrollbar-hide">
-                    {testSessions.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center">
-                            <img
-                                className="w-2/5"
-                                src="assets/images/sleeping_version.webp"
-                                alt="Example Image"
-                            />
-                            <h1 className="text-3xl">Unfortunately there are no sessions to show</h1>
-                        </div>
-                    ) : (
-                        testSessions.map((session) => (
-                            <div className="mb-20" key={session.id} onClick={() =>setActiveSession(session)}>
-                                <div className="special-card rounded-xl p-4 shadow-2xl flex-shrink-0 w-80 mb-10">
-                                    <h2 className="font-bold text-xl mb-2">Session #{session.id}</h2>
-                                    <div className="grid grid-cols-2 gap-4 justify-center items-center">
-                                        {SESSION_KEYS.map((key) => (
-                                            <div key={key}>
-                                                <p className="text-sm font-medium">{priettifySessionKey(key)}</p>
-                                                <StarRating value={session[key]} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                {session.stressLevel != null && (
-                                    <div className="flex justify-center items-center">
-                                        <span className="text-xl">{STRESS_LEVELS[session.stressLevel]}</span>
-                                    </div>
-                                )}
-                            </div>
-                        ))
-                    )}
-                </div>
+                <Sessions setActiveSession={setActiveSession} />
 
                 <button
                     className="send-btn w-1/4 h-20 transform transition-transform duration-200 hover:-translate-y-1"
