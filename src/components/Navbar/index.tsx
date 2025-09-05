@@ -35,7 +35,7 @@ const Navbar = ({ user }: { user: User | null }) =>{
 
             {open && (
             <div className="w-full text-yellow-700 special-card absolute top-full left-0 p-3 -mt-5 pt-10 bg-white rounded-bl-xl rounded-br-xl shadow-lg -z-10">
-                <div className="text-xl flex gap-5 items-center transform transition-transform duration-500 hover:-translate-y-1">
+                <div className="cursor-pointer text-xl flex gap-5 items-center transform transition-transform duration-500 hover:-translate-y-1">
                     <LogoutBtn className="pl-1 w-10 h-10"/>
                     <button
                         onClick={() => {

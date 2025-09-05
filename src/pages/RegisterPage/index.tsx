@@ -44,7 +44,7 @@ const RegisterPage = () => {
     return (
         <div className="w-full h-screen flex justify-center items-center">
             <img
-                className="w-2/5"
+                className="w-1/2"
                 src="assets/images/awake_version.webp"
                 alt="Example Image"
             />

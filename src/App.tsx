@@ -8,16 +8,11 @@ import HomePage from './pages/HomePage';
 import WelcomePage from './pages/WelcomePage';
 import ErrorPage from './pages/ErrorPage';
 import LoadingPage from './pages/LoadingPage';
-
-const pageTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.3 }
-};
+import { pageTransition } from './animations/routes';
 
 const App = () => {
   const location = useLocation();
+
 
   return (
     <div className='app flex items-center justify-center w-full h-full'>
