@@ -6,16 +6,21 @@ import StarRating from "../StarRating"
 import type { AppDispatch, RootState } from "../../state/store"
 import { useEffect } from "react"
 import { getUserSessions } from "../../state/sessions/sessionsSlice"
+import { useNavigate } from "react-router-dom"
 
 const Sessions = ({ sessions, setActiveSession } : { sessions: Session[], setActiveSession: (session: Session) => void }) =>{
+    const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
     
     const token = useSelector((state: RootState) => state.token.token)
     const user = useSelector((state: RootState) => state.user.user)
+    const { isLoading } = useSelector((state: RootState) => state.sessions)
 
     useEffect(() =>{
         if(token && user) {
+            navigate("/loading")
             dispatch(getUserSessions({ token, user }))
+            if(!isLoading) navigate("/home")
         }
     }, [token, user?.id, dispatch,])
 
@@ -50,7 +55,7 @@ const Sessions = ({ sessions, setActiveSession } : { sessions: Session[], setAct
                 : (
                 <div className="flex flex-col items-center justify-center">
                     <img
-                        className="w-2/5"
+                        className="w-2/5 mt-[10vh]"
                         src="assets/images/sleeping_version.webp"
                         alt="Example Image"
                     />

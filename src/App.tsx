@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage'
 import WelcomePage from './pages/WelcomePage'
 import ProtectedRoute from './security/ProtectedRoute'
 import ErrorPage from './pages/ErrorPage'
+import LoadingPage from './pages/LoadingPage'
 
 const App = () =>{
   return (
@@ -21,6 +22,7 @@ const App = () =>{
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<WelcomePage />} />
         <Route path="/error" element={<ErrorPage />} />
+        <Route path="/loading" element={<LoadingPage />} />
       </Routes>
     </div>
   )

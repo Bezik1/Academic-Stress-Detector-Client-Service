@@ -1,7 +1,7 @@
 import { useState } from "react"
 import "./index.css"
-import { useDispatch } from "react-redux"
-import type { AppDispatch } from "../../state/store"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "../../state/store"
 import { getToken } from "../../state/token/tokenSlice"
 import { useNavigate } from "react-router-dom"
 import { setError } from "../../state/error/errorSlice"
@@ -10,6 +10,7 @@ const LoginPage = () => {
     const navigate = useNavigate()
 
     const dispatch = useDispatch<AppDispatch>()
+    const { isLoading } = useSelector((state: RootState) => state.token)
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -18,8 +19,10 @@ const LoginPage = () => {
         e.preventDefault()
 
         try {
+            navigate("/loading")
             await dispatch(getToken({ email, password })).unwrap()
-            navigate("/home")
+            
+            if(!isLoading) navigate("/home")
         } catch(err) {
             dispatch(setError({
                 status: "400",
@@ -31,11 +34,6 @@ const LoginPage = () => {
 
     return (
         <div className="w-full h-screen flex justify-center items-center">
-            <img
-                className="w-2/5"
-                src="assets/images/working_version.webp"
-                alt="Example Image"
-            />
             <div className="flex flex-col justify-center items-center h-full w-1/2  mb-[10vh]">
                 <h1 className="special-text text-2xl mb-4">Sign in</h1>
                 <form className="flex flex-col gap-10 w-3/4 justify-center items-center" onSubmit={handleSubmit}>
@@ -58,6 +56,11 @@ const LoginPage = () => {
                     </button>
                 </form>
             </div>
+            <img
+                className="w-2/5"
+                src="assets/images/working_version.webp"
+                alt="Example Image"
+            />
         </div>
     )
 }

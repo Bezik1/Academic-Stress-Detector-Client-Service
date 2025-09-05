@@ -23,7 +23,7 @@ const HomePage = () => {
     const navigate = useNavigate()
 
     const dispatch = useDispatch<AppDispatch>()
-    const { sessions, error: sessionsError } = useSelector((state: RootState) => state.sessions)
+    const { sessions, error: sessionsError, isLoading: sessionsLoading } = useSelector((state: RootState) => state.sessions)
     const { token, error: tokenError } = useSelector((state: RootState) => state.token)
     const { user, error: userError } = useSelector((state: RootState) => state.user)
 
@@ -65,6 +65,7 @@ const HomePage = () => {
         }
 
         try {
+            navigate("/loading")
             const res = await fetch(`${PREDICT_URL}/${sessionId}`, {
                 method: "POST",
                 headers: {
@@ -78,6 +79,7 @@ const HomePage = () => {
             if (res.ok) {
                 setActiveSession(undefined)
                 await dispatch(getUserSessions({ token, user }))
+                if(!sessionsLoading) navigate("/home")
             } else {
                 
                 dispatch(setError({
@@ -101,6 +103,7 @@ const HomePage = () => {
 
             const { id, stressLevel, ...newSession } = newSessionData
 
+            navigate("/loading")
             const res = await fetch(`${USER_SESSIONS_URL}/${user.id}`, {
                 method: "POST",
                 headers: {
@@ -113,7 +116,8 @@ const HomePage = () => {
             const data = await res.text()
 
             if (res.ok) {
-                dispatch(getUserSessions({ token, user }))
+                await dispatch(getUserSessions({ token, user }))
+                if(!sessionsLoading) navigate("/home")
             } else {
                 dispatch(setError({
                     status: res.status.toString(),
@@ -133,7 +137,8 @@ const HomePage = () => {
     const removeSession = async (session: Session) =>{
         try {
             if (!user || !token) throw new Error("User or Token are invalid")
-
+            
+            navigate("/loading")
             const res = await fetch(`${SESSIONS_URL}/${session.id}`, {
                 method: "DELETE",
                 headers: {
@@ -146,7 +151,8 @@ const HomePage = () => {
 
             if (res.ok) {
                 setActiveSession(undefined)
-                dispatch(getUserSessions({ token, user }))
+                await dispatch(getUserSessions({ token, user }))
+                if(!sessionsLoading) navigate("/home")
             } else {
                 dispatch(setError({
                     status: res.status.toString(),
