@@ -1,69 +1,58 @@
-# React + TypeScript + Vite
+# 🧑‍🎓 Academic Stress Detector - Client Service
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 💡 Overview
 
-Currently, two official plugins are available:
+Client Service of this application was built using Vite, React, Typescript, Tailwind and framer-motion. It's the visual core of this app and it coordinates auth and user services to achieve fast and secure data transfer. This project aim is to create software for predicting user stress level in each session based on user's personal feelings and conditions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Banner](./public/assets/trees/application-tree.png)
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🗒️ Pages
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Welcome Page
+![Banner](./public/assets/screens/welcome-page.png)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Register Page
+![Banner](./public/assets/screens/register-page.png)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Login Page
+![Banner](./public/assets/screens/login-page.png)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Loading Page
+![Banner](./public/assets/screens/loading-page.png)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Home Page
+![Banner](./public/assets/screens/home-page.png)
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+![Banner](./public/assets/screens/sessions-page.png)
+
+### Session Modal
+![Banner](./public/assets/screens/modal-view.png)
+
+![Banner](./public/assets/screens/modal-prediction-view.png)
+
+### Error Page
+![Banner](./public/assets/screens/error-page.png)
+
+## 🗒️ Features
+* Redux based state managment system that saves sessions to local storage;
+* Request Token Authorization;
+* Clarity in design;
+* Animations created in framer-motion;
+
+## ⚙️ Command Tools
+
+To work with this project locally or in a containerized environment, use the following commands:
+```bash
+npm run build # builds the project
+
+npm run dev # run the project in developer mode
+````
+
+## 🧠 Tech Stack
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=html,css,js,react,typescript,git,redux,tailwind" />
+  </a>
+</p>
+ 
