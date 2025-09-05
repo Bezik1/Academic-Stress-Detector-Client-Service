@@ -1,31 +1,80 @@
-import { Route, Routes } from 'react-router-dom'
-import './App.css'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import HomePage from './pages/HomePage'
-import WelcomePage from './pages/WelcomePage'
-import ProtectedRoute from './security/ProtectedRoute'
-import ErrorPage from './pages/ErrorPage'
-import LoadingPage from './pages/LoadingPage'
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import './App.css';
 
-const App = () =>{
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+import WelcomePage from './pages/WelcomePage';
+import ErrorPage from './pages/ErrorPage';
+import LoadingPage from './pages/LoadingPage';
+
+const pageTransition = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.3 }
+};
+
+const App = () => {
+  const location = useLocation();
+
   return (
-    <div className='app flex items-center justify-center'>
-      <Routes>
-        <Route path="/home" element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/error" element={<ErrorPage />} />
-        <Route path="/loading" element={<LoadingPage />} />
-      </Routes>
+    <div className='app flex items-center justify-center w-full h-full'>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route
+            path="/home"
+            element={
+              <motion.div {...pageTransition}>
+                <HomePage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <motion.div {...pageTransition}>
+                <RegisterPage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <motion.div {...pageTransition}>
+                <LoginPage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <motion.div {...pageTransition}>
+                <WelcomePage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/error"
+            element={
+              <motion.div {...pageTransition}>
+                <ErrorPage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/loading"
+            element={
+              <motion.div {...pageTransition}>
+                <LoadingPage />
+              </motion.div>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

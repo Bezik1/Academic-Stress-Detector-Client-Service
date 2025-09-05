@@ -3,7 +3,7 @@ import type { TokenState } from "../../types/store/TokenState"
 import { LOGIN_URL } from "../../const/api";
 
 const initialState: TokenState = {
-    token: null,
+    token: localStorage.getItem("token"),
     error: null,
     isLoading: false
 }
@@ -11,7 +11,12 @@ const initialState: TokenState = {
 const tokenSlice = createSlice({
     name: "token",
     initialState,
-    reducers: {},
+    reducers: {
+        logout: state =>{
+            state.token = null
+            localStorage.clear()
+        }
+    },
     extraReducers: (builder) =>{
         builder
             .addCase(getToken.pending, state =>{
@@ -21,6 +26,7 @@ const tokenSlice = createSlice({
             .addCase(getToken.fulfilled, (state, action: PayloadAction<string>) =>{
                 state.token = action.payload
                 state.isLoading = false
+                localStorage.setItem("token", action.payload);
             })
             .addCase(getToken.rejected, (state, action) =>{
                 state.error = {
@@ -30,6 +36,8 @@ const tokenSlice = createSlice({
             })
     }
 })
+
+export const { logout } = tokenSlice.actions 
 
 export const getToken = createAsyncThunk<string, { email: string, password: string }>(
     "token/getToken",

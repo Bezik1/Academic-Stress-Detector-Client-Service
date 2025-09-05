@@ -14,6 +14,7 @@ import { getUserSessions } from "../../state/sessions/sessionsSlice"
 import { useNavigate } from "react-router-dom"
 import { setError } from "../../state/error/errorSlice"
 import { CloseBtn } from "../../components/svg/CloseBtn"
+import Navbar from "../../components/Navbar"
 
 const HomePage = () => {
     const [activeSession, setActiveSession] = useState<Session>()
@@ -45,9 +46,17 @@ const HomePage = () => {
     }, [userError, tokenError])
 
     useEffect(() => {
-        if (token) {
-            dispatch(getUser({ token }))
+        if(token == null && location.pathname !== "/") {
+            dispatch(setError({
+                status: "404",
+                message: "Token not found"
+            }))
+
+            navigate("/error")
+            return;
         }
+
+        if(token) dispatch(getUser({ token }))
     }, [token, dispatch])
 
     const handleStarChange = (key: keyof Session, value: number) => {
@@ -171,12 +180,7 @@ const HomePage = () => {
 
     return (
         <div className="flex flex-col justify-center items-center gap-6 p-4">
-            <nav className="special-card fixed top-0 left-0 m-10 flex items-center justify-start gap-2 bg-white p-3 w-1/9 rounded-full shadow-md">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 text-lg font-bold border-2 border-yellow-700">
-                    U
-                </div>
-                <span className="text-xl text-yellow-700 ml-5">{user?.username}</span>
-            </nav>
+            <Navbar user={user} />
 
             <div className="flex items-center justify-between m-[5vw] mr-[10vw]">
                 <img
