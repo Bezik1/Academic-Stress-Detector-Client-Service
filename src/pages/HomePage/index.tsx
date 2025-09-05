@@ -45,6 +45,15 @@ const HomePage = () => {
         }
     }, [userError, tokenError])
 
+
+    useEffect(() =>{
+        if(token && user) {
+            navigate("/loading")
+            dispatch(getUserSessions({ token, user }))
+            if(!sessionsLoading) navigate("/home")
+        }
+    }, [token, user?.id, dispatch,])
+
     useEffect(() => {
         if(token == null && location.pathname !== "/") {
             dispatch(setError({

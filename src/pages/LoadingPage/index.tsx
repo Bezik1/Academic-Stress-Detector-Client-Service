@@ -24,9 +24,9 @@ const dot: any = {
 
 const LoadingPage = () => {
     return (
-        <div className="w-full h-full object-cover filter brightness-90 bg-amber-50 flex flex-col items-center justify-center gap-8">
+        <div className="w-full h-full object-cover filter brightness-95  flex flex-col items-center justify-center gap-8">
             <img
-                className="w-2/7"
+                className="w-3/7"
                 src="assets/images/loading_version.webp"
                 alt="Example Image"
             />

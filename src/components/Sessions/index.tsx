@@ -1,36 +1,17 @@
-import { useDispatch, useSelector } from "react-redux"
 import { SESSION_KEYS, STRESS_LEVELS } from "../../const/session"
 import type { Session } from "../../types/Session"
 import { priettifySessionKey } from "../../utils/text"
 import StarRating from "../StarRating"
-import type { AppDispatch, RootState } from "../../state/store"
 import { useEffect, useRef } from "react"
-import { getUserSessions } from "../../state/sessions/sessionsSlice"
-import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { sessionContainerVariants, sessionItemVariants } from "../../animations/sessions"
 
 const Sessions = ({ sessions, setActiveSession } : { sessions: Session[], setActiveSession: (session: Session) => void }) =>{
     const containerRef = useRef<HTMLDivElement>(null!)
 
-    const navigate = useNavigate()
-    const dispatch = useDispatch<AppDispatch>()
-    
-    const token = useSelector((state: RootState) => state.token.token)
-    const user = useSelector((state: RootState) => state.user.user)
-    const { isLoading } = useSelector((state: RootState) => state.sessions)
-
     useEffect(() =>{
         containerRef.current.scrollTo({ left: -90 * sessions.length  })
     }, [sessions])
-
-    useEffect(() =>{
-        if(token && user) {
-            navigate("/loading")
-            dispatch(getUserSessions({ token, user }))
-            if(!isLoading) navigate("/home")
-        }
-    }, [token, user?.id, dispatch,])
 
 return (
         <motion.div
