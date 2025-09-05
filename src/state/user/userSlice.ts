@@ -9,34 +9,14 @@ const initialState: UserState = {
     isLoading: false,
 }
 
-const userSlice = createSlice({
-    name: "user",
-    initialState,
-    reducers: {},
-    extraReducers: (builder) =>{
-        builder
-            .addCase(getUser.pending, state =>{
-                state.error = null
-                state.isLoading = true
-            })
-            .addCase(getUser.fulfilled, (state, action: PayloadAction<User>) =>{
-                state.user = action.payload
-                state.isLoading = false
-            })
-            .addCase(getUser.rejected, (state, action) => {
-                    state.error = {
-                        status: action.error.code ?? "400",
-                        message: action.error.message ?? "Failed to fetch user",
-                    };
-                    state.isLoading = false;
-                });
-        },
-})
-
-export const getUser = createAsyncThunk<User, { token: string }>(
+export const getUser = createAsyncThunk<
+    User,
+    { token: string },
+    { rejectValue: { status: string; message: string } }
+>(
     "user/getUser",
-    async ({ token }) => {
-        try {
+    async ({ token }, thunkAPI) => {
+        try {            
             const res = await fetch(ME_URL, {
                 method: "GET",
                 headers: {
@@ -46,15 +26,49 @@ export const getUser = createAsyncThunk<User, { token: string }>(
             });
 
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                const data = await res.json().catch(() => null);
+                return thunkAPI.rejectWithValue({
+                    status: res.status.toString(),
+                    message: data?.message || res.statusText || "Failed to fetch user",
+                });
             }
 
             const data: User = await res.json();
             return data;
         } catch (err) {
-            throw err;
+            return thunkAPI.rejectWithValue({
+                status: "400",
+                message: err instanceof Error ? err.message : String(err),
+            });
         }
-    }   
+    }
 );
 
-export default userSlice.reducer
+const userSlice = createSlice({
+    name: "user",
+    initialState,
+    reducers: {
+        logout: state => {
+            state.user = null;
+            localStorage.clear();
+        }
+    },
+    extraReducers: builder => {
+        builder
+            .addCase(getUser.pending, state => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getUser.fulfilled, (state, action: PayloadAction<User>) => {
+                state.user = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(getUser.rejected, (state, action) => {
+                state.error = action.payload ?? { status: "400", message: "Failed to fetch user" };
+                state.isLoading = false;
+            });
+    },
+});
+
+export const { logout: userLogout } = userSlice.actions;
+export default userSlice.reducer;

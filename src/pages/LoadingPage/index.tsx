@@ -1,5 +1,7 @@
 import { motion } from "framer-motion"
 import "./index.css"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../state/store"
 
 const container: any = {
     animate: {
@@ -23,8 +25,14 @@ const dot: any = {
 }
 
 const LoadingPage = () => {
+    const { message } = useSelector((state: RootState) => state.loading) 
+
     return (
         <div className="w-full h-full object-cover filter brightness-95  flex flex-col items-center justify-center gap-8">
+            <div>
+                {message && <div className="text-3xl text-center">{message}</div>}
+                <span className="text-3xl text-center">It may take a while...</span>
+            </div>
             <img
                 className="w-1/2"
                 src="assets/images/loading_version.webp"

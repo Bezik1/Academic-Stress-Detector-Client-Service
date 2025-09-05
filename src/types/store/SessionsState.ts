@@ -1,7 +1,7 @@
 import type { Session } from "../Session";
 
 export interface SessionsState {
-    sessions: Session[]
+    sessions: Session[] | null
     isLoading: boolean;
     error: {
         status: string

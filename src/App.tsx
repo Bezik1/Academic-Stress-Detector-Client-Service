@@ -9,6 +9,7 @@ import WelcomePage from './pages/WelcomePage';
 import ErrorPage from './pages/ErrorPage';
 import LoadingPage from './pages/LoadingPage';
 import { pageTransition } from './animations/routes';
+import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
   const location = useLocation();
@@ -65,6 +66,10 @@ const App = () => {
                 <LoadingPage />
               </motion.div>
             }
+          />
+          <Route
+            path="*"
+            element={<NotFoundPage />}
           />
         </Routes>
       </AnimatePresence>

@@ -37,11 +37,11 @@ const tokenSlice = createSlice({
     }
 })
 
-export const { logout } = tokenSlice.actions 
+export const { logout: tokenLogout } = tokenSlice.actions
 
 export const getToken = createAsyncThunk<string, { email: string, password: string }>(
     "token/getToken",
-    async ({ email, password }) => {
+    async ({ email, password }, thunkAPI) => {
             try {
                 const res = await fetch(LOGIN_URL, {
                     method: "POST",
@@ -58,7 +58,10 @@ export const getToken = createAsyncThunk<string, { email: string, password: stri
                 const generatedToken = await res.text()
                 return generatedToken
             } catch(err) {
-                throw err;
+                return thunkAPI.rejectWithValue({
+                status: "400",
+                message: err instanceof Error ? err.message : String(err),
+            });
             }
     }   
 );

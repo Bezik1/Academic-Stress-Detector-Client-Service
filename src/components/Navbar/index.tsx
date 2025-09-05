@@ -1,9 +1,11 @@
 import { useState } from "react";
 import type { User } from "../../types/User";
 import { LogoutBtn } from "../svg/LogoutBt";
-import { logout } from "../../state/token/tokenSlice";
+import { tokenLogout } from "../../state/token/tokenSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { userLogout } from "../../state/user/userSlice";
+import { sessionsLogout } from "../../state/sessions/sessionsSlice";
 
 const Navbar = ({ user }: { user: User | null }) =>{
     const dispatch = useDispatch()
@@ -12,7 +14,9 @@ const Navbar = ({ user }: { user: User | null }) =>{
     const [open, setOpen] = useState(false);
 
     const onLogout = () => {
-        dispatch(logout());
+        dispatch(tokenLogout());
+        dispatch(userLogout());
+        dispatch(sessionsLogout());
         navigate("/")
     };
 

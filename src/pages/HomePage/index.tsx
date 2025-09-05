@@ -1,7 +1,7 @@
 import "./index.css"
 import type { Session } from "../../types/Session"
 import { useEffect, useState } from "react"
-import { SESSION_KEYS, STRESS_LEVELS } from "../../const/session"
+import { initialNewSessionState, SESSION_KEYS, STRESS_LEVELS } from "../../const/session"
 import { priettifySessionKey } from "../../utils/text"
 import StarRating from "../../components/StarRating"
 import { useDispatch, useSelector } from "react-redux"
@@ -15,176 +15,177 @@ import { useNavigate } from "react-router-dom"
 import { setError } from "../../state/error/errorSlice"
 import { CloseBtn } from "../../components/svg/CloseBtn"
 import Navbar from "../../components/Navbar"
+import { setLoading } from "../../state/loading/loadingSlice"
 
 const HomePage = () => {
     const [activeSession, setActiveSession] = useState<Session>()
     const [activeCreateNewModal, setActiveCreateNewModal] = useState(false)
-    const [newSessionData, setNewSessionData] = useState<Partial<Session>>({})
+    const [newSessionData, setNewSessionData] = useState<Partial<Session>>(initialNewSessionState)
 
     const navigate = useNavigate()
-
     const dispatch = useDispatch<AppDispatch>()
-    const { sessions, error: sessionsError, isLoading: sessionsLoading } = useSelector((state: RootState) => state.sessions)
+    const { sessions, error: sessionsError } = useSelector((state: RootState) => state.sessions)
     const { token, error: tokenError } = useSelector((state: RootState) => state.token)
     const { user, error: userError } = useSelector((state: RootState) => state.user)
+    const { loading } = useSelector((state: RootState) => state.loading)
 
-    useEffect(() =>{
-        if(userError || tokenError) {
-            switch(true) {
-                case userError != null:
-                    dispatch(setError(userError))
-                    break
-                case tokenError != null:
-                    dispatch(setError(tokenError))
-                    break
-                case sessionsError != null:
-                    dispatch(setError(sessionsError))
-                    break
-            }
-            navigate("/error")
-        }
-    }, [userError, tokenError])
-
-
-    useEffect(() =>{
-        if(token && user) {
-            navigate("/loading")
-            dispatch(getUserSessions({ token, user }))
-            if(!sessionsLoading) navigate("/home")
-        }
-    }, [token, user?.id, dispatch,])
-
-    useEffect(() => {
-        if(token == null && location.pathname !== "/") {
-            dispatch(setError({
-                status: "404",
-                message: "Token not found"
-            }))
-
-            navigate("/error")
-            return;
-        }
-
-        if(token) dispatch(getUser({ token }))
-    }, [token, dispatch])
-
-    const handleStarChange = (key: keyof Session, value: number) => {
-        setNewSessionData((prev) => ({ ...prev, [key]: value }))
+    const handleError = (status: string, message: string) => {
+        dispatch(setError({ status, message }))
+        navigate("/error", { replace: true })
     }
 
-    const predictStressLevel = async (sessionId: string) => {
+    useEffect(() => {
+        if (userError || tokenError || sessionsError) {
+        if (userError) handleError(userError.status, userError.message)
+        else if (tokenError) handleError(tokenError.status, tokenError.message)
+        else if (sessionsError) handleError(sessionsError.status, sessionsError.message)
+        }
+    }, [userError, tokenError, sessionsError])
+
+    useEffect(() => {
+        if (sessions) return
+        const getUserAsyncSessions = async () => {
+            if (token && user) {
+                dispatch(setLoading({ loading: true, message: "Getting User Sessions" }))
+                navigate("/loading", { replace: true })
+                try {
+                    const resultAction = await dispatch(getUserSessions({ token, user }))
+                    if (getUserSessions.rejected.match(resultAction)) {
+                        handleError(resultAction.payload?.status ?? "400", resultAction.payload?.message ?? "Failed to fetch sessions")
+                    }
+                } finally {
+                    dispatch(setLoading({ loading: false, message: null }))
+                    if (!loading) navigate("/home")
+                }
+            }
+        }
+        getUserAsyncSessions()
+    }, [token, user?.id])
+
+    useEffect(() => {
+        if (user) return
+        const getUserAsyncInfo = async () => {
+            if (!token && location.pathname !== "/") {
+                handleError("401", "Token not found")
+                return
+            }
+            dispatch(setLoading({ loading: true, message: "Getting User Info" }))
+            navigate("/loading", { replace: true })
+            try {
+                if (token) {
+                    const resultAction = await dispatch(getUser({ token }))
+                if (getUser.rejected.match(resultAction)) {
+                    handleError(resultAction.payload?.status ?? "400", resultAction.payload?.message ?? "Failed to fetch user info")
+                }
+                }
+            } finally {
+                dispatch(setLoading({ loading: false, message: null }))
+                navigate("/home")
+            }
+        }
+        getUserAsyncInfo()
+    }, [])
+
+    const handleStarChange = (key: keyof Session, value: number) => {
+        setNewSessionData(prev => ({ ...prev, [key]: value }))
+    }
+
+    const callApi = async <T = any>(
+        url: string,
+        method: string,
+        body?: any,
+        actionName?: string
+    ): Promise<T | null> => {
         if (!user || !token) {
-            dispatch(setError({
-                status: "400",
-                message: "User or Token are invalid",
-            }))
-            navigate("/error")
+            handleError("400", "User or token invalid")
+            return null
+        }
+
+        dispatch(setLoading({ loading: true, message: actionName ?? null }))
+        navigate("/loading", { replace: true })
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: body ? JSON.stringify(body) : undefined,
+            })
+
+            const textData = await res.text()
+            let data: any
+            try {
+                data = JSON.parse(textData)
+            } catch {
+                data = textData
+            }
+
+            if (!res.ok) {
+                const errorMessage = String(`${data?.message}: ${data?.error}`) ?? textData ?? "An unexpected error occurred"
+                handleError(res.status.toString(), errorMessage)
+                return null
+            }
+
+            return data as T
+        } catch (err) {
+            handleError("400", err instanceof Error ? err.message : String(err))
+            return null
+        } 
+    }
+
+
+    const predictStressLevel = async (sessionId: string) => {
+        if(token == null || user == null) {
+            handleError("401", "Unauthorized token")
             return
         }
 
-        try {
-            navigate("/loading")
-            const res = await fetch(`${PREDICT_URL}/${sessionId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-            })
-
-            const data = await res.text()
-
-            if (res.ok) {
-                setActiveSession(undefined)
-                await dispatch(getUserSessions({ token, user }))
-                if(!sessionsLoading) navigate("/home")
-            } else {
-                
-                dispatch(setError({
-                    status: res.status.toString(),
-                    message: data,
-                }))
-                navigate("/error")
-            }
-        } catch (err) {
-            dispatch(setError({
-                status: "400",
-                message: err instanceof Error ? err.message : String(err),
-            }))
-            navigate("/error")
-        }
+        await callApi(`${PREDICT_URL}/${sessionId}`, "POST", undefined, "Predicting Stress Level")
+        setActiveSession(undefined)
+        await dispatch(getUserSessions({ token, user }))
+        navigate("/home", { replace: true })
     }
 
     const createNewSession = async () => {
+        if (!token || !user) {
+            handleError("401", "Unauthorized token")
+            return
+        }
+
+        const { id, stressLevel, ...newSession } = newSessionData
+
         try {
-            if (!user || !token) throw new Error("User or Token are invalid")
+            const result = await callApi(`${USER_SESSIONS_URL}/${user.id}`, "POST", newSession, "Creating New Session" )
 
-            const { id, stressLevel, ...newSession } = newSessionData
+            if (!result) return
 
-            navigate("/loading")
-            const res = await fetch(`${USER_SESSIONS_URL}/${user.id}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify(newSession),
-            })
-
-            const data = await res.text()
-
-            if (res.ok) {
-                await dispatch(getUserSessions({ token, user }))
-                if(!sessionsLoading) navigate("/home")
-            } else {
-                dispatch(setError({
-                    status: res.status.toString(),
-                    message: data,
-                }))
-                navigate("/error")
+            setNewSessionData(initialNewSessionState)
+            const refreshAction = await dispatch(getUserSessions({ token, user }))
+            if (getUserSessions.rejected.match(refreshAction)) {
+                handleError(
+                    refreshAction.payload?.status ?? "400",
+                    refreshAction.payload?.message ?? "Failed to refresh sessions"
+                )
             }
-        } catch (err) {
-            dispatch(setError({
-                status: "400",
-                message: err instanceof Error ? err.message : String(err),
-            }))
-            navigate("/error")
+            dispatch(setLoading({ loading: false, message: null }))
+        } finally {
+            dispatch(setLoading({ loading: false, message: null }))
+            navigate("/home", { replace: true })
         }
     }
 
-    const removeSession = async (session: Session) =>{
-        try {
-            if (!user || !token) throw new Error("User or Token are invalid")
-            
-            navigate("/loading")
-            const res = await fetch(`${SESSIONS_URL}/${session.id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-            })
-
-            const data = await res.text()
-
-            if (res.ok) {
-                setActiveSession(undefined)
-                await dispatch(getUserSessions({ token, user }))
-                if(!sessionsLoading) navigate("/home")
-            } else {
-                dispatch(setError({
-                    status: res.status.toString(),
-                    message: data,
-                }))
-                navigate("/error")
-            }
-        } catch (err) {
-            dispatch(setError({
-                status: "400",
-                message: err instanceof Error ? err.message : String(err),
-            }))
-            navigate("/error")
+    const removeSession = async (session: Session) => {
+        if(token == null || user == null) {
+            handleError("401", "Unauthorized token")
+            return
         }
+
+        await callApi(`${SESSIONS_URL}/${session.id}`, "DELETE", undefined, "Removing Session")
+        setActiveSession(undefined)
+        await dispatch(getUserSessions({ token, user }))
+        navigate("/home", { replace: true })
     }
 
     return (
@@ -239,14 +240,6 @@ const HomePage = () => {
                                     onClick={() => removeSession(activeSession)}
                                 >
                                     Remove
-                                </button>
-                                <button
-                                    className="px-6 py-2 bg-yellow-700 text-white rounded-lg hover:bg-yellow-800"
-                                    onClick={() => {
-                                        setActiveSession(undefined)
-                                    }}
-                                >
-                                    Save
                                 </button>
                             </div>
                         </div>
