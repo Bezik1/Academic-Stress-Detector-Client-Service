@@ -26,23 +26,23 @@ const LoadingPage = () => {
     return (
         <div className="w-full h-full object-cover filter brightness-95  flex flex-col items-center justify-center gap-8">
             <img
-                className="w-3/7"
+                className="w-1/2"
                 src="assets/images/loading_version.webp"
                 alt="Example Image"
             />
             <h1 className="text-7xl flex items-center gap-2">
                 Loading
                 <motion.span
-                className="flex gap-2"
-                variants={container}
-                initial="initial"
-                animate="animate"
+                    className="flex gap-2"
+                    variants={container}
+                    initial="initial"
+                    animate="animate"
                 >
                 {[0, 1, 2].map((i) => (
                     <motion.span
-                    key={i}
-                    className="text-7xl"
-                    variants={dot}
+                        key={i}
+                        className="text-7xl"
+                        variants={dot}
                     >
                     .
                     </motion.span>
