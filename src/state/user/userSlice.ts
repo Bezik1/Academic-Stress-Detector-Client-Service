@@ -24,6 +24,7 @@ export const getUser = createAsyncThunk<
                     "Authorization": `Bearer ${token}`,
                 },
             });
+            console.log(res)
 
             if (!res.ok) {
                 const data = await res.json().catch(() => null);

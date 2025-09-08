@@ -74,7 +74,6 @@ const HomePage = () => {
             try {
                 if (token) {
                     const resultAction = await dispatch(getUser({ token }))
-                    console.log(resultAction)
                 if (getUser.rejected.match(resultAction)) {
                     handleError(resultAction.payload?.status ?? "400", resultAction.payload?.message ?? "Failed to fetch user info")
                 }
