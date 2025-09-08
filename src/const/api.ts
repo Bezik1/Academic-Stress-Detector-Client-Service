@@ -9,4 +9,6 @@ export const ME_URL = `${USERS_URL}/me`
 
 export const SESSIONS_URL = `${USER_SERVICE_URL}/sessions`
 export const USER_SESSIONS_URL = `${SESSIONS_URL}/user`
-export const PREDICT_URL = `${SESSIONS_URL}/predict`
+
+export const MODEL_SERVICE_URL = "https://academic-stress-detector-model-service.onrender.com/api/model"
+export const PREDICT_URL = `${MODEL_SERVICE_URL}/predict`

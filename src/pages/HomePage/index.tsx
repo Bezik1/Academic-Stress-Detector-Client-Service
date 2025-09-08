@@ -113,7 +113,6 @@ const HomePage = () => {
                 },
                 body: body ? JSON.stringify(body) : undefined,
             })
-            console.log(res)
 
             const textData = await res.text()
             let data: any
