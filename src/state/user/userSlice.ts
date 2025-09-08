@@ -17,6 +17,7 @@ export const getUser = createAsyncThunk<
     "user/getUser",
     async ({ token }, thunkAPI) => {
         try {            
+            console.log(ME_URL)
             const res = await fetch(ME_URL, {
                 method: "GET",
                 headers: {
